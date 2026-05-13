@@ -3,66 +3,74 @@ import React from "react";
 const projects = [
   {
     number: "01",
-    title: "Sistema de gestión para citas psicológicas",
-    category: "Automation / Apps Script / UX Workflow",
-    description: "Automatización de agenda, mensajes y trazabilidad operativa."
+    title: "PEVI / Industrial Energy Efficiency",
+    category: "Energy Efficiency / Data Validation / Technical Reporting",
+    description: "Validación de auditorías energéticas, consolidación de indicadores y estructuración de fichas técnicas para programas de eficiencia industrial."
   },
   {
     number: "02",
-    title: "Modelo fotovoltaico para análisis energético",
-    category: "PV Design / PVSyst / Technical Reporting",
-    description: "Modelado técnico, simulación energética y documentación de resultados."
+    title: "PV System Evaluation — PTAP La Flora",
+    category: "Photovoltaics / PVsyst / Techno-Economic Analysis",
+    description: "Evaluación de alternativas solares FV mediante simulación energética, análisis económico, restricciones eléctricas y recomendaciones técnicas."
   },
   {
     number: "03",
-    title: "Motion graphics programados",
-    category: "Remotion / React / Video Systems",
-    description: "Animaciones generativas orientadas a flujos de edición y exportación."
+    title: "Rural Energy Systems for ZNI",
+    category: "Hybrid Systems / Optimization / Energy Access",
+    description: "Investigación aplicada en sistemas híbridos FV-biomasa-diésel para electrificación rural y reducción de dependencia de generación diésel."
   },
   {
     number: "04",
-    title: "Validación de indicadores energéticos",
-    category: "Energy Data / Python / Reporting",
-    description: "Depuración, control de consistencia y estructuración de indicadores."
+    title: "Technical Automation Systems",
+    category: "Python / Apps Script / Excel Workflows",
+    description: "Herramientas para convertir procesos manuales en flujos automatizados con validación de datos, reportes y comunicación operativa."
   },
   {
     number: "05",
-    title: "Automatización de reportes administrativos",
-    category: "Python / Excel / PDF Extraction",
-    description: "Extracción, limpieza y consolidación de información operativa."
+    title: "Programmatic Motion Graphics",
+    category: "React / Remotion / Video Systems",
+    description: "Exploración de animaciones programadas y exportables para flujos de edición, visualización técnica y contenido digital."
   },
   {
     number: "06",
-    title: "Visualización técnica para decisiones",
-    category: "Data Visualization / Engineering Communication",
-    description: "Diseño de estructuras visuales para comunicar información compleja."
+    title: "LCA and Environmental Modelling",
+    category: "SimaPro / LCA / EPD Methodology",
+    description: "Estructuración metodológica de escenarios, unidades funcionales y análisis de sensibilidad para evaluación ambiental de sistemas técnicos."
   }
 ];
 
 const cases = [
   {
     number: "01",
-    title: "Automatización administrativa",
-    problem: "Procesos manuales, datos dispersos y baja trazabilidad en tareas repetitivas.",
-    solution: "Diseño de un flujo estructurado con formularios, hojas de cálculo, lógica de validación y mensajes automatizados.",
-    result: "Reducción de errores operativos, mayor control del flujo y menor tiempo dedicado a tareas mecánicas.",
-    stack: "Google Sheets / Apps Script / UX Workflow"
+    title: "Industrial energy data validation",
+    problem: "Las auditorías energéticas industriales generan información dispersa entre informes finales, bases consolidadas, indicadores, tarifas, factores de emisión y oportunidades de mejora.",
+    solution: "Estructuración de matrices de validación, depuración de inconsistencias, normalización de indicadores energéticos, financieros y ambientales, y síntesis técnica para fichas resumen.",
+    result: "Mayor trazabilidad de la información, mejor calidad de los reportes y soporte técnico más claro para decisiones de eficiencia energética industrial.",
+    stack: "Energy Efficiency / Excel / Technical Reporting / ISO 50001 Context"
   },
   {
     number: "02",
-    title: "Análisis energético y validación técnica",
-    problem: "Información energética inconsistente entre reportes, bases consolidadas e indicadores de desempeño.",
-    solution: "Normalización de variables, revisión cruzada de datos y construcción de criterios para validar consumos, ahorros y emisiones.",
-    result: "Información más confiable para reportes técnicos, toma de decisiones y comunicación institucional.",
-    stack: "Python / Excel / Energy Data / Technical Reporting"
+    title: "Photovoltaic system evaluation",
+    problem: "Un proyecto FV requiere evaluar producción, pérdidas, capacidad instalada, restricciones eléctricas, impacto económico y criterios de conexión antes de tomar decisiones de inversión.",
+    solution: "Simulación en PVsyst, comparación de variantes, revisión de PR, producción específica, fracción solar, CAPEX/OPEX, LCOE, VPN, TIR, payback y punto de interconexión.",
+    result: "Alternativas técnicas comparables, criterios económicos verificables y recomendaciones de conexión alineadas con el contexto eléctrico del proyecto.",
+    stack: "PVsyst / PV Design / Financial Analysis / Technical Documentation"
   },
   {
     number: "03",
-    title: "Sistemas visuales programados",
-    problem: "Necesidad de piezas visuales consistentes, editables y exportables sin depender de procesos manuales de diseño.",
-    solution: "Implementación de componentes visuales programados con React y Remotion para generar animaciones reutilizables.",
-    result: "Mayor control sobre estilo, tiempos, variantes visuales y exportación para edición de video.",
-    stack: "React / Remotion / Motion Design"
+    title: "Hybrid energy systems for rural electrification",
+    problem: "Las Zonas No Interconectadas requieren soluciones energéticas confiables que reduzcan dependencia de diésel y respondan a condiciones técnicas, sociales y territoriales.",
+    solution: "Formulación de escenarios con sistemas híbridos FV-biomasa-diésel, criterios de pobreza energética, análisis de confiabilidad y modelos de optimización energética.",
+    result: "Marco técnico para evaluar alternativas de electrificación rural con enfoque en continuidad del servicio, sostenibilidad y reducción de emisiones.",
+    stack: "Hybrid Systems / MILP / Energy Access / ZNI / HOMER Context"
+  },
+  {
+    number: "04",
+    title: "Automation for operational workflows",
+    problem: "Procesos administrativos y técnicos repetitivos consumen tiempo, aumentan errores y dificultan la trazabilidad de la información.",
+    solution: "Desarrollo de herramientas con Python, Google Apps Script, Excel avanzado y estructuras web simples para automatizar validaciones, reportes y comunicaciones.",
+    result: "Reducción de carga operativa, mejor consistencia de datos y flujos más claros para usuarios técnicos y administrativos.",
+    stack: "Python / Pandas / Apps Script / Excel / React"
   }
 ];
 
@@ -105,11 +113,11 @@ function App() {
       <section className="hero container grid-12" aria-labelledby="hero-title">
         <div className="heroIndex">01</div>
         <div className="heroContent">
-          <p className="eyebrow">Engineering / Software / Visual Systems</p>
-          <h1 id="hero-title">Diseño sistemas técnicos, automatizo procesos y traduzco datos en decisiones.</h1>
+          <p className="eyebrow">Energy Systems / Automation / Technical Design</p>
+          <h1 id="hero-title">Ingeniería energética convertida en sistemas claros, datos confiables y decisiones técnicas.</h1>
           <p className="heroSubtitle">
-            Ingeniero en Energía y Sostenibilidad enfocado en automatización, sistemas fotovoltaicos,
-            análisis técnico y herramientas visuales para procesos de alto impacto.
+            Soy Jose David Barrios Franco, Ingeniero en Energía y Sostenibilidad. Integro simulación fotovoltaica,
+            eficiencia energética, análisis de datos y automatización para estructurar soluciones técnicas verificables.
           </p>
           <div className="ctaRow">
             <a className="cta ctaPrimary" href="#work">Ver proyectos</a>
@@ -118,9 +126,9 @@ function App() {
         </div>
         <aside className="heroMeta" aria-label="Profile metadata">
           <span>Santander, Colombia</span>
-          <span>Energy Systems</span>
-          <span>Automation</span>
-          <span>Technical Design</span>
+          <span>Energy & Sustainability</span>
+          <span>PV Systems</span>
+          <span>Automation Developer</span>
         </aside>
       </section>
 
@@ -189,19 +197,19 @@ function App() {
         <SectionHeading index="04 / ABOUT" title="About" />
         <div className="aboutGrid grid-12">
           <p className="aboutLead">
-            Construyo soluciones para problemas técnicos que requieren orden, criterio y ejecución.
+            Trabajo en la intersección entre energía, datos y software aplicado.
           </p>
           <div className="aboutCopy">
             <p>
-              Soy Ingeniero en Energía y Sostenibilidad con experiencia en sistemas fotovoltaicos,
-              automatización de procesos, análisis técnico y desarrollo de herramientas digitales.
+              Soy Ingeniero en Energía y Sostenibilidad con experiencia en eficiencia energética industrial,
+              sistemas fotovoltaicos, regulación energética colombiana, análisis técnico y automatización de procesos.
             </p>
             <p>
-              Trabajo en la intersección entre ingeniería, software y visualización. Mi enfoque es
-              estructurar información compleja, convertirla en sistemas funcionales y producir resultados verificables.
+              Mi trabajo combina simulación energética, validación de datos, modelamiento técnico, redacción de informes
+              y desarrollo de herramientas digitales para reducir errores, ordenar información y acelerar decisiones.
             </p>
             <p>
-              No diseño soluciones para impresionar. Diseño soluciones para que funcionen, reduzcan errores y ahorren tiempo.
+              No separo ingeniería y comunicación. Una solución técnica debe funcionar, poder verificarse y explicarse con claridad.
             </p>
           </div>
         </div>
@@ -211,7 +219,7 @@ function App() {
         <SectionHeading
           index="05 / CONTACT"
           title="Hablemos de un sistema que necesita orden."
-          intro="Disponible para proyectos de ingeniería aplicada, automatización, análisis técnico y visualización digital."
+          intro="Disponible para proyectos de energía, sistemas fotovoltaicos, eficiencia energética, automatización técnica y análisis de datos."
         />
         <div className="contactGrid grid-12">
           <a className="emailLink" href="mailto:contacto@jdbf.dev">contacto@jdbf.dev</a>
