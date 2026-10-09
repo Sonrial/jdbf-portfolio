@@ -1,621 +1,152 @@
-import React from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { ArrowUpRight, ArrowRight, ArrowUp, Sun, Moon, Search, MapPin, Mail, Copy, Check, Download, Zap, Code2, Layers3, ChartNoAxesCombined, ChevronDown, X } from 'lucide-react';
+import { profile, projects, cases, projectGroups, expertise } from './data/portfolio';
+import CommandPalette from './components/CommandPalette';
+import ProjectVisual from './components/ProjectVisual';
+import './App.css';
 
-const projects = [
-  {
-    number: "01",
-    title: "PEVI / Industrial Energy Efficiency",
-    category: "Energy Efficiency / Data Validation / Technical Reporting",
-    description: "Validación de auditorías energéticas, consolidación de indicadores y estructuración de fichas técnicas para programas de eficiencia industrial."
-  },
-  {
-    number: "02",
-    title: "PV System Evaluation — PTAP La Flora",
-    category: "Photovoltaics / PVsyst / Techno-Economic Analysis",
-    description: "Evaluación de alternativas solares FV mediante simulación energética, análisis económico, restricciones eléctricas y recomendaciones técnicas."
-  },
-  {
-    number: "03",
-    title: "Rural Energy Systems for ZNI",
-    category: "Hybrid Systems / Optimization / Energy Access",
-    description: "Investigación aplicada en sistemas híbridos FV-biomasa-diésel para electrificación rural y reducción de dependencia de generación diésel."
-  },
-  {
-    number: "04",
-    title: "Technical Automation Systems",
-    category: "Python / Apps Script / Excel Workflows",
-    description: "Herramientas para convertir procesos manuales en flujos automatizados con validación de datos, reportes y comunicación operativa."
-  },
-  {
-    number: "05",
-    title: "Programmatic Motion Graphics",
-    category: "React / Remotion / Video Systems",
-    description: "Exploración de animaciones programadas y exportables para flujos de edición, visualización técnica y contenido digital."
-  },
-  {
-    number: "06",
-    title: "LCA and Environmental Modelling",
-    category: "SimaPro / LCA / EPD Methodology",
-    description: "Estructuración metodológica de escenarios, unidades funcionales y análisis de sensibilidad para evaluación ambiental de sistemas técnicos."
-  }
-];
+const EnergyScene = lazy(() => import('./components/EnergyScene'));
+const navigation = [['about', 'Sobre mí'], ['work', 'Proyectos'], ['cases', 'Casos'], ['contact', 'Contacto']];
+const icons = { energy: Zap, code: Code2, model: ChartNoAxesCombined, visual: Layers3 };
 
-const cases = [
-  {
-    number: "01",
-    title: "Industrial energy data validation",
-    problem: "Las auditorías energéticas industriales generan información dispersa entre informes finales, bases consolidadas, indicadores, tarifas, factores de emisión y oportunidades de mejora.",
-    solution: "Estructuración de matrices de validación, depuración de inconsistencias, normalización de indicadores energéticos, financieros y ambientales, y síntesis técnica para fichas resumen.",
-    result: "Mayor trazabilidad de la información, mejor calidad de los reportes y soporte técnico más claro para decisiones de eficiencia energética industrial.",
-    stack: "Energy Efficiency / Excel / Technical Reporting / ISO 50001 Context"
-  },
-  {
-    number: "02",
-    title: "Photovoltaic system evaluation",
-    problem: "Un proyecto FV requiere evaluar producción, pérdidas, capacidad instalada, restricciones eléctricas, impacto económico y criterios de conexión antes de tomar decisiones de inversión.",
-    solution: "Simulación en PVsyst, comparación de variantes, revisión de PR, producción específica, fracción solar, CAPEX/OPEX, LCOE, VPN, TIR, payback y punto de interconexión.",
-    result: "Alternativas técnicas comparables, criterios económicos verificables y recomendaciones de conexión alineadas con el contexto eléctrico del proyecto.",
-    stack: "PVsyst / PV Design / Financial Analysis / Technical Documentation"
-  },
-  {
-    number: "03",
-    title: "Hybrid energy systems for rural electrification",
-    problem: "Las Zonas No Interconectadas requieren soluciones energéticas confiables que reduzcan dependencia de diésel y respondan a condiciones técnicas, sociales y territoriales.",
-    solution: "Formulación de escenarios con sistemas híbridos FV-biomasa-diésel, criterios de pobreza energética, análisis de confiabilidad y modelos de optimización energética.",
-    result: "Marco técnico para evaluar alternativas de electrificación rural con enfoque en continuidad del servicio, sostenibilidad y reducción de emisiones.",
-    stack: "Hybrid Systems / MILP / Energy Access / ZNI / HOMER Context"
-  },
-  {
-    number: "04",
-    title: "Automation for operational workflows",
-    problem: "Procesos administrativos y técnicos repetitivos consumen tiempo, aumentan errores y dificultan la trazabilidad de la información.",
-    solution: "Desarrollo de herramientas con Python, Google Apps Script, Excel avanzado y estructuras web simples para automatizar validaciones, reportes y comunicaciones.",
-    result: "Reducción de carga operativa, mejor consistencia de datos y flujos más claros para usuarios técnicos y administrativos.",
-    stack: "Python / Pandas / Apps Script / Excel / React"
-  }
-];
-
-function Header() {
-  return (
-    <header className="header">
-      <div className="container grid-12 headerInner">
-        <a className="logo" href="#top" aria-label="JDBF Home">
-          JDBF
-        </a>
-        <nav className="nav" aria-label="Main navigation">
-          <a href="#work">Work</a>
-          <a href="#cases">Case Studies</a>
-          <a href="#about">About</a>
-          <a href="#contact">Contact</a>
-        </nav>
-      </div>
-    </header>
-  );
-}
-
-function SectionHeading({ index, title, intro }) {
-  return (
-    <div className="sectionIntro grid-12">
-      <div className="sectionLabel">{index}</div>
-      <div className="sectionTitleBlock">
-        <h2>{title}</h2>
-        {intro && <p>{intro}</p>}
-      </div>
-    </div>
-  );
+function SectionTitle({ index, title, count, caption }) {
+  return <div className="section-heading"><div><span className="section-index">{index} /</span><h2>{title}{count && <sup>{count}</sup>}</h2></div>{caption && <span className="section-caption">{caption}</span>}</div>;
 }
 
 function App() {
-  return (
-    <main id="top">
-      <style>{styles}</style>
-      <Header />
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem('jdbf-theme') || 'light'; } catch { return 'light'; }
+  });
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [filter, setFilter] = useState('Todos');
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [activeSection, setActiveSection] = useState('');
+  const [copyStatus, setCopyStatus] = useState('');
+  const [contactStatus, setContactStatus] = useState('');
+  const [contactDraft, setContactDraft] = useState('');
+  const projectDialog = useRef(null);
+  const copyTimer = useRef(null);
 
-      <section className="hero container grid-12" aria-labelledby="hero-title">
-        <div className="heroIndex">01</div>
-        <div className="heroContent">
-          <p className="eyebrow">Energy Systems / Automation / Technical Design</p>
-          <h1 id="hero-title">Ingeniería energética convertida en sistemas claros, datos confiables y decisiones técnicas.</h1>
-          <p className="heroSubtitle">
-            Soy Jose David Barrios Franco, Ingeniero en Energía y Sostenibilidad. Integro simulación fotovoltaica,
-            eficiencia energética, análisis de datos y automatización para estructurar soluciones técnicas verificables.
-          </p>
-          <div className="ctaRow">
-            <a className="cta ctaPrimary" href="#work">Ver proyectos</a>
-            <a className="cta" href="#contact">Contactar</a>
-          </div>
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem('jdbf-theme', theme); } catch { /* Theme works without storage. */ }
+  }, [theme]);
+
+  useEffect(() => {
+    const onKey = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault(); setCommandOpen(value => !value);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) setActiveSection(entry.target.id); });
+    }, { rootMargin: '-15% 0px -65% 0px' });
+    navigation.forEach(([id]) => { const section = document.getElementById(id); if (section) observer.observe(section); });
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('revealed'); revealObserver.unobserve(entry.target); } });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(element => {
+      element.classList.add('reveal-ready'); revealObserver.observe(element);
+    });
+    return () => { window.removeEventListener('keydown', onKey); observer.disconnect(); revealObserver.disconnect(); clearTimeout(copyTimer.current); };
+  }, []);
+
+  useEffect(() => {
+    if (selectedProject && !projectDialog.current.open) projectDialog.current.showModal();
+  }, [selectedProject]);
+
+  async function copyEmail() {
+    try { await navigator.clipboard.writeText(profile.email); setCopyStatus('Correo copiado'); }
+    catch { setCopyStatus('Puedes copiar el correo directamente: ' + profile.email); }
+    clearTimeout(copyTimer.current);
+    copyTimer.current = setTimeout(() => setCopyStatus(''), 4500);
+  }
+
+  function downloadContact() {
+    const card = ['BEGIN:VCARD', 'VERSION:3.0', `FN:${profile.name}`, 'N:Barrios Franco;Jose David;;;', `TITLE:${profile.role}`, `EMAIL:${profile.email}`, 'ADR:;;Santander;;;Colombia;', 'END:VCARD'].join('\r\n');
+    const url = URL.createObjectURL(new Blob([card], { type: 'text/vcard;charset=utf-8' }));
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'Jose-David-Barrios-Franco.vcf'; anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function sendContact(event) {
+    event.preventDefault();
+    const fields = new FormData(event.currentTarget);
+    const subject = `Proyecto de ${fields.get('name')}`;
+    const body = `Hola Jose David,\n\n${fields.get('project')}\n\n${fields.get('name')}\n${fields.get('email')}`;
+    setContactDraft(`mailto:${profile.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+    setContactStatus('Mensaje preparado. Abre tu aplicación de correo, revisa el mensaje y envíalo allí.');
+  }
+
+  const visibleProjects = projects.filter(project => filter === 'Todos' || projectGroups[project.number] === filter);
+  const selectedCase = selectedProject && cases.find(item => item.number === selectedProject.number);
+
+  return <>
+    <a className="skip-link" href="#main">Saltar al contenido</a>
+    <header className="site-header">
+      <div className="header-inner">
+        <a className="wordmark" href="#top" aria-label="JDBF — Inicio">jd<span className="wordmark-b">b</span>f<span className="wordmark-dot">.</span></a>
+        <nav aria-label="Navegación principal">{navigation.map(([id, label]) => <a key={id} className={activeSection === id ? 'active' : ''} href={`#${id}`} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}</nav>
+        <div className="header-actions"><button className="search-button" onClick={() => setCommandOpen(true)} aria-label="Buscar en el portfolio"><Search size={15} /><span>Buscar</span><kbd>⌘ K</kbd></button><button className="icon-button theme-button" aria-label={theme === 'light' ? 'Activar tema oscuro' : 'Activar tema claro'} onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>{theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}</button></div>
+      </div>
+    </header>
+
+    <main id="main" className="portfolio-shell">
+      <div id="top" className="page-label"><span>PORTFOLIO PERSONAL</span><span>ENERGÍA × TECNOLOGÍA</span></div>
+      <section className="hero" aria-labelledby="hero-title">
+        <div className="hero-copy">
+          <div className="availability"><span className="status-dot" />Disponible para proyectos</div>
+          <h1 id="hero-title">Jose David<br />Barrios Franco<span className="name-dot">.</span></h1>
+          <p className="hero-role">{profile.role}</p>
+          <p className="hero-tagline">Energía. Datos. <span>Sistemas.</span></p>
+          <div className="hero-links"><a className="button button-primary" href="#work">Explorar proyectos <ArrowUpRight size={16} /></a><a className="text-link" href="#contact">Hablemos <ArrowRight size={15} /></a></div>
         </div>
-        <aside className="heroMeta" aria-label="Profile metadata">
-          <span>Santander, Colombia</span>
-          <span>Energy & Sustainability</span>
-          <span>PV Systems</span>
-          <span>Automation Developer</span>
-        </aside>
+        <figure className="hero-art"><div className="figure-top"><span className="mono">FIG. 01</span><span className="scene-label"><span />SISTEMA EN MOVIMIENTO</span></div><Suspense fallback={<div className="scene-fallback" aria-hidden="true"><Zap size={70} strokeWidth={0.8} /></div>}><EnergyScene theme={theme} /></Suspense><figcaption><span>Transformar energía en posibilidades.</span><span className="mono">↗ JDBF</span></figcaption></figure>
       </section>
 
-      <section id="work" className="section container" aria-labelledby="work-title">
-        <SectionHeading
-          index="02 / WORK"
-          title="Selected Work"
-          intro="Una selección de proyectos donde convergen ingeniería, software, automatización y visualización técnica."
-        />
+      <div className="profile-strip"><div><MapPin size={15} /><span>{profile.location}</span></div><div><Zap size={15} /><span>Energy & Sustainability</span></div><button onClick={downloadContact}><Download size={15} /><span>Guardar contacto</span><ArrowUpRight size={13} /></button></div>
+      <div className="stripe-divider" aria-hidden="true" />
 
-        <div className="workGrid" aria-label="Project gallery">
-          {projects.map((project) => (
-            <article className="workCard" key={project.number}>
-              <div className="workMedia" aria-hidden="true">
-                <span>{project.number}</span>
-              </div>
-              <div>
-                <p className="workNumber">{project.number}</p>
-                <h3>{project.title}</h3>
-                <p className="workCategory">{project.category}</p>
-                <p className="workDescription">{project.description}</p>
-              </div>
-            </article>
-          ))}
-        </div>
+      <section id="about" className="section reveal" aria-labelledby="about-title">
+        <SectionTitle index="01" title={<span id="about-title">Sobre mí</span>} caption="INGENIERÍA CON PROPÓSITO" />
+        <div className="about-content"><p className="about-lead">Trabajo en la intersección entre <strong>energía, datos y software aplicado.</strong></p><p className="about-intro">{profile.headline}</p><div className="about-copy"><p>{profile.introduction}</p>{profile.about.map(paragraph => <p key={paragraph}>{paragraph}</p>)}</div><div className="signature"><span className="signature-mark">jdbf.</span><span>Soluciones que funcionan.<br />Decisiones que se pueden explicar.</span></div></div>
       </section>
 
-      <section id="cases" className="section container" aria-labelledby="cases-title">
-        <SectionHeading
-          index="03 / CASE STUDIES"
-          title="Technical Case Studies"
-          intro="Cada caso se documenta desde el problema, la solución implementada y el resultado obtenido."
-        />
-
-        <div className="caseList">
-          {cases.map((item) => (
-            <article className="caseStudy" key={item.number}>
-              <div className="caseTitle">
-                <span>{item.number}</span>
-                <h3>{item.title}</h3>
-              </div>
-              <div className="caseBody">
-                <div className="caseBlock">
-                  <h4>Problema</h4>
-                  <p>{item.problem}</p>
-                </div>
-                <div className="caseBlock">
-                  <h4>Solución</h4>
-                  <p>{item.solution}</p>
-                </div>
-                <div className="caseBlock">
-                  <h4>Resultado</h4>
-                  <p>{item.result}</p>
-                </div>
-                <div className="caseBlock">
-                  <h4>Stack</h4>
-                  <p>{item.stack}</p>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
+      <div className="stripe-divider" aria-hidden="true" />
+      <section id="stack" className="section reveal" aria-labelledby="stack-title">
+        <SectionTitle index="02" title={<span id="stack-title">Mi caja de herramientas</span>} caption="DEL ANÁLISIS A LA IMPLEMENTACIÓN" />
+        <div className="expertise-grid">{expertise.map(item => { const Icon = icons[item.icon]; return <article className="expertise-item" key={item.number}><div className="expertise-top"><Icon size={21} strokeWidth={1.5} /><span className="mono">{item.number}</span></div><h3>{item.title}</h3><p>{item.description}</p><div className="tags">{item.tools.map(tool => <span key={tool}>{tool}</span>)}</div></article>; })}</div>
       </section>
 
-      <section id="about" className="section container aboutSection" aria-labelledby="about-title">
-        <SectionHeading index="04 / ABOUT" title="About" />
-        <div className="aboutGrid grid-12">
-          <p className="aboutLead">
-            Trabajo en la intersección entre energía, datos y software aplicado.
-          </p>
-          <div className="aboutCopy">
-            <p>
-              Soy Ingeniero en Energía y Sostenibilidad con experiencia en eficiencia energética industrial,
-              sistemas fotovoltaicos, regulación energética colombiana, análisis técnico y automatización de procesos.
-            </p>
-            <p>
-              Mi trabajo combina simulación energética, validación de datos, modelamiento técnico, redacción de informes
-              y desarrollo de herramientas digitales para reducir errores, ordenar información y acelerar decisiones.
-            </p>
-            <p>
-              No separo ingeniería y comunicación. Una solución técnica debe funcionar, poder verificarse y explicarse con claridad.
-            </p>
-          </div>
-        </div>
+      <div className="stripe-divider" aria-hidden="true" />
+      <section id="work" className="section reveal" aria-labelledby="work-title">
+        <SectionTitle index="03" title={<span id="work-title">Proyectos seleccionados</span>} count="06" />
+        <div className="work-intro"><p>Ingeniería, software y visualización técnica.<br />Un mismo enfoque: convertir complejidad en claridad.</p><div className="filters" role="group" aria-label="Filtrar proyectos">{['Todos', 'Energía', 'Software', 'Sostenibilidad'].map(label => <button key={label} aria-pressed={filter === label} className={filter === label ? 'selected' : ''} onClick={() => setFilter(label)}>{label}</button>)}</div></div>
+        <p className="sr-only" role="status">{visibleProjects.length} proyectos visibles</p>
+        <div className="projects-grid">{visibleProjects.map(project => <article className="project-card" key={project.number}><button className="project-open" onClick={() => setSelectedProject(project)} aria-label={`Ver proyecto: ${project.title}`}><div className={`project-media visual-${project.number}`}><ProjectVisual number={project.number} /><span className="project-media-label">{projectGroups[project.number]} / {project.number}</span><span className="project-media-arrow"><ArrowUpRight size={17} /></span></div><div className="project-copy"><div className="project-topline"><span className="mono">PROYECTO {project.number}</span><ArrowUpRight size={17} /></div><h3>{project.title}</h3><p>{project.description}</p><div className="project-stack">{project.category.split(' / ').map(tag => <span key={tag}>{tag}</span>)}</div></div></button></article>)}</div>
       </section>
 
-      <section id="contact" className="section container contactSection" aria-labelledby="contact-title">
-        <SectionHeading
-          index="05 / CONTACT"
-          title="Hablemos de un sistema que necesita orden."
-          intro="Disponible para proyectos de energía, sistemas fotovoltaicos, eficiencia energética, automatización técnica y análisis de datos."
-        />
-        <div className="contactGrid grid-12">
-          <a className="emailLink" href="mailto:contacto@jdbf.dev">contacto@jdbf.dev</a>
-          <form className="contactForm" onSubmit={(event) => event.preventDefault()}>
-            <label>
-              Nombre
-              <input type="text" name="name" placeholder="Tu nombre" />
-            </label>
-            <label>
-              Email
-              <input type="email" name="email" placeholder="tu@email.com" />
-            </label>
-            <label>
-              Proyecto
-              <textarea name="project" rows="5" placeholder="Describe el problema técnico o sistema que quieres resolver." />
-            </label>
-            <button type="submit" className="cta ctaPrimary">Enviar mensaje</button>
-          </form>
-        </div>
+      <div className="stripe-divider" aria-hidden="true" />
+      <section id="cases" className="section reveal" aria-labelledby="cases-title">
+        <SectionTitle index="04" title={<span id="cases-title">Detrás de la solución</span>} count="04" caption="CASOS TÉCNICOS" />
+        <p className="section-description">El problema, el proceso y lo que cambió. Ingeniería documentada, de principio a fin.</p>
+        <div className="cases-list">{cases.map((item, index) => <details className="case-item" key={item.number} open={index === 0}><summary><span className="case-number mono">{item.number}</span><span><span className="case-category">{projectGroups[item.number]}</span><h3>{item.title}</h3></span><ChevronDown size={18} className="case-chevron" /></summary><div className="case-content">{[['Problema', item.problem], ['Solución', item.solution], ['Resultado', item.result]].map(([label, copy]) => <div className={`case-block ${label === 'Resultado' ? 'case-result' : ''}`} key={label}><h4>{label === 'Resultado' && <Check size={14} />}{label}</h4><p>{copy}</p></div>)}<div className="case-tools"><Code2 size={14} /><p>{item.stack}</p></div></div></details>)}</div>
       </section>
+
+      <div className="stripe-divider" aria-hidden="true" />
+      <section id="contact" className="section contact-section reveal" aria-labelledby="contact-title">
+        <SectionTitle index="05" title={<span id="contact-title">Construyamos algo útil.</span>} caption="LA SIGUIENTE CONVERSACIÓN" />
+        <div className="contact-grid"><div className="contact-copy"><span className="availability"><span className="status-dot" />Abierto a colaborar</span><h3>¿Un sistema que<br />necesita orden?</h3><p>Disponible para proyectos de energía, sistemas fotovoltaicos, eficiencia energética, automatización técnica y análisis de datos.</p><div className="email-row"><a href={`mailto:${profile.email}`}><Mail size={17} />{profile.email}</a><button className="icon-button" aria-label="Copiar correo electrónico" onClick={copyEmail}>{copyStatus === 'Correo copiado' ? <Check size={15} /> : <Copy size={15} />}</button></div><p role="status" className="copy-status">{copyStatus}</p><div className="contact-location"><MapPin size={14} />Santander, Colombia <span>UTC−5</span></div></div><form className="contact-form" onSubmit={sendContact}><div className="form-row"><label>Tu nombre<input required name="name" autoComplete="name" placeholder="¿Cómo te llamas?" maxLength={120} /></label><label>Tu correo<input required type="email" name="email" autoComplete="email" placeholder="tu@correo.com" maxLength={254} /></label></div><label>Cuéntame sobre tu proyecto<textarea required name="project" rows={4} placeholder="El problema, la idea o el sistema que quieres mejorar…" maxLength={3000} /></label><button className="button button-primary" type="submit">Preparar correo <ArrowUpRight size={16} /></button><p className="form-note">El mensaje se envía desde tu aplicación de correo.</p>{contactDraft && <a className="text-link contact-draft" href={contactDraft} target="_blank" rel="noreferrer">Abrir aplicación de correo <ArrowUpRight size={15} /></a>}<p className="contact-status" role="status">{contactStatus}</p></form></div>
+      </section>
+      <footer className="footer"><a className="wordmark" href="#top" aria-label="Volver al inicio">jdbf<span className="wordmark-dot">.</span></a><p>© {new Date().getFullYear()} Jose David Barrios Franco<br /><span>Hecho con criterio. Pensado para ser útil.</span></p><a href="https://github.com/Sonrial/jdbf-portfolio" target="_blank" rel="noreferrer" className="footer-source"><Code2 size={15} />Código fuente <ArrowUpRight size={13} /></a><a href="#top" className="back-top" aria-label="Volver arriba"><ArrowUp size={17} /></a></footer>
     </main>
-  );
-}
 
-const styles = `
-:root {
-  --white: #ffffff;
-  --black: #000000;
-  --red: #ff0000;
-  --gray-100: #f5f5f5;
-  --gray-200: #e5e5e5;
-  --gray-500: #737373;
-  --gray-700: #404040;
-  --container: min(100% - 48px, 1440px);
-  --font: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    <CommandPalette open={commandOpen} onClose={() => setCommandOpen(false)} onProject={setSelectedProject} />
+    <dialog ref={projectDialog} className="project-dialog" onClose={() => setSelectedProject(null)} onClick={event => { if (event.target === event.currentTarget) projectDialog.current.close(); }} aria-labelledby="project-dialog-title">
+      {selectedProject && <><div className={`dialog-art visual-${selectedProject.number}`}><ProjectVisual number={selectedProject.number} /><button className="icon-button dialog-close" onClick={() => projectDialog.current.close()} aria-label="Cerrar proyecto" autoFocus><X size={18} /></button></div><div className="dialog-copy"><span className="mono section-index">PROYECTO {selectedProject.number} / {projectGroups[selectedProject.number]}</span><h2 id="project-dialog-title">{selectedProject.title}</h2><p>{selectedProject.description}</p>{selectedCase && <div className="dialog-case">{[['Problema', selectedCase.problem], ['Solución', selectedCase.solution], ['Resultado', selectedCase.result]].map(([title, body]) => <div key={title}><h3>{title}</h3><p>{body}</p></div>)}<p className="dialog-case-stack">{selectedCase.stack}</p></div>}<div className="tags">{selectedProject.category.split(' / ').map(tag => <span key={tag}>{tag}</span>)}</div><a className="button button-primary" href="#contact" onClick={() => projectDialog.current.close()}>Hablemos de un proyecto similar <ArrowUpRight size={16} /></a></div></>}
+    </dialog>
+  </>;
 }
-
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  background: var(--white);
-  color: var(--black);
-  font-family: var(--font);
-  text-rendering: geometricPrecision;
-  -webkit-font-smoothing: antialiased;
-}
-::selection { background: var(--red); color: var(--white); }
-a { color: inherit; text-decoration: none; }
-button, input, textarea { font: inherit; }
-
-.container {
-  width: var(--container);
-  margin-inline: auto;
-}
-
-.grid-12 {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  column-gap: 24px;
-}
-
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--gray-200);
-}
-
-.headerInner { height: 80px; align-items: center; }
-.logo {
-  grid-column: 1 / span 2;
-  font-size: 0.875rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-}
-.nav {
-  grid-column: 7 / span 6;
-  display: flex;
-  justify-content: flex-end;
-  gap: 32px;
-}
-.nav a {
-  position: relative;
-  font-size: 0.875rem;
-  letter-spacing: -0.02em;
-}
-.nav a::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -8px;
-  width: 0;
-  height: 2px;
-  background: var(--red);
-  transition: width 220ms ease;
-}
-.nav a:hover::after { width: 100%; }
-
-.hero {
-  min-height: calc(100vh - 80px);
-  align-items: center;
-  padding-block: 96px;
-}
-.heroIndex {
-  grid-column: 1 / span 1;
-  align-self: start;
-  color: var(--red);
-  font-size: 0.875rem;
-  font-weight: 800;
-}
-.heroContent { grid-column: 3 / span 8; }
-.eyebrow {
-  margin: 0 0 24px;
-  color: var(--red);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-h1 {
-  margin: 0;
-  max-width: 1160px;
-  font-size: clamp(3.5rem, 8vw, 8.5rem);
-  line-height: 0.92;
-  letter-spacing: -0.065em;
-}
-.heroSubtitle {
-  max-width: 680px;
-  margin: 40px 0 0;
-  font-size: 1.125rem;
-  line-height: 1.65;
-  color: var(--gray-700);
-}
-.heroMeta {
-  grid-column: 11 / span 2;
-  align-self: start;
-  display: grid;
-  gap: 12px;
-  color: var(--gray-700);
-  font-size: 0.875rem;
-  line-height: 1.4;
-}
-.ctaRow { display: flex; gap: 28px; margin-top: 56px; flex-wrap: wrap; }
-.cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  border: 0;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.ctaPrimary { color: var(--red); }
-.cta::before {
-  content: "";
-  width: 32px;
-  height: 2px;
-  background: currentColor;
-  transition: width 220ms ease;
-}
-.cta:hover::before { width: 56px; }
-
-.section {
-  padding-block: 144px;
-  border-top: 1px solid var(--gray-200);
-}
-.sectionIntro { margin-bottom: 64px; }
-.sectionLabel {
-  grid-column: 1 / span 3;
-  color: var(--red);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.sectionTitleBlock { grid-column: 4 / span 8; }
-.sectionTitleBlock h2 {
-  margin: 0;
-  font-size: clamp(2.5rem, 5vw, 5.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.055em;
-}
-.sectionTitleBlock p {
-  max-width: 720px;
-  margin: 28px 0 0;
-  color: var(--gray-700);
-  font-size: 1.125rem;
-  line-height: 1.6;
-}
-
-.workGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--gray-200);
-  border: 1px solid var(--gray-200);
-}
-.workCard {
-  min-height: 460px;
-  background: var(--white);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.workMedia {
-  min-height: 210px;
-  background:
-    linear-gradient(90deg, transparent calc(100% - 1px), var(--gray-200) calc(100% - 1px)),
-    linear-gradient(180deg, transparent calc(100% - 1px), var(--gray-200) calc(100% - 1px)),
-    var(--gray-100);
-  background-size: 32px 32px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  padding: 16px;
-  transition: background-size 240ms ease;
-}
-.workMedia span {
-  color: var(--red);
-  font-size: 3rem;
-  line-height: 0.85;
-  font-weight: 800;
-  letter-spacing: -0.06em;
-}
-.workCard:hover .workMedia { background-size: 24px 24px; }
-.workNumber {
-  margin: 24px 0 0;
-  color: var(--red);
-  font-size: 0.75rem;
-  font-weight: 800;
-}
-.workCard h3 {
-  margin: 16px 0 12px;
-  font-size: 1.5rem;
-  line-height: 1.08;
-  letter-spacing: -0.035em;
-  transition: transform 220ms ease;
-}
-.workCard:hover h3 { transform: translateX(4px); }
-.workCategory,
-.workDescription {
-  margin: 0;
-  color: var(--gray-700);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-.workDescription { margin-top: 16px; }
-
-.caseList { border-top: 1px solid var(--black); }
-.caseStudy {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  column-gap: 24px;
-  padding-block: 48px;
-  border-bottom: 1px solid var(--gray-200);
-}
-.caseStudy::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--red);
-  transition: width 260ms ease;
-}
-.caseStudy:hover::before { width: 100%; }
-.caseTitle { grid-column: 1 / span 4; }
-.caseTitle span {
-  display: block;
-  color: var(--red);
-  font-size: 0.75rem;
-  font-weight: 800;
-  margin-bottom: 16px;
-}
-.caseTitle h3 {
-  margin: 0;
-  max-width: 360px;
-  font-size: 2rem;
-  line-height: 1.05;
-  letter-spacing: -0.045em;
-}
-.caseBody {
-  grid-column: 5 / span 7;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 36px 48px;
-}
-.caseBlock h4 {
-  margin: 0 0 12px;
-  color: var(--red);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.caseBlock p {
-  margin: 0;
-  color: var(--gray-700);
-  line-height: 1.6;
-}
-
-.aboutGrid { margin-top: 24px; }
-.aboutLead {
-  grid-column: 4 / span 4;
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 4rem);
-  line-height: 0.98;
-  letter-spacing: -0.055em;
-}
-.aboutCopy {
-  grid-column: 8 / span 4;
-  display: grid;
-  gap: 24px;
-}
-.aboutCopy p {
-  margin: 0;
-  color: var(--gray-700);
-  font-size: 1.05rem;
-  line-height: 1.7;
-}
-.contactGrid { margin-top: 32px; }
-.emailLink {
-  grid-column: 4 / span 3;
-  color: var(--red);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-.contactForm {
-  grid-column: 7 / span 5;
-  display: grid;
-  gap: 24px;
-}
-.contactForm label {
-  display: grid;
-  gap: 10px;
-  color: var(--black);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.contactForm input,
-.contactForm textarea {
-  width: 100%;
-  border: 0;
-  border-bottom: 1px solid var(--black);
-  border-radius: 0;
-  padding: 16px 0;
-  background: transparent;
-  color: var(--black);
-  outline: none;
-  text-transform: none;
-  letter-spacing: 0;
-  font-weight: 400;
-}
-.contactForm input:focus,
-.contactForm textarea:focus { border-bottom-color: var(--red); }
-
-@media (max-width: 1000px) {
-  .grid-12 { grid-template-columns: repeat(6, 1fr); column-gap: 16px; }
-  .nav { grid-column: 3 / span 4; gap: 20px; }
-  .heroIndex { grid-column: 1 / span 1; }
-  .heroContent { grid-column: 1 / span 6; margin-top: 32px; }
-  .heroMeta { grid-column: 1 / span 6; margin-top: 48px; }
-  .sectionLabel, .sectionTitleBlock { grid-column: 1 / span 6; }
-  .sectionLabel { margin-bottom: 24px; }
-  .workGrid { grid-template-columns: repeat(2, 1fr); }
-  .caseTitle { grid-column: 1 / span 6; margin-bottom: 32px; }
-  .caseBody { grid-column: 1 / span 6; }
-  .aboutLead { grid-column: 1 / span 6; }
-  .aboutCopy { grid-column: 1 / span 6; margin-top: 40px; }
-  .emailLink { grid-column: 1 / span 6; margin-bottom: 32px; }
-  .contactForm { grid-column: 1 / span 6; }
-}
-
-@media (max-width: 640px) {
-  :root { --container: min(100% - 32px, 100%); }
-  .headerInner { height: auto; padding-block: 20px; row-gap: 18px; }
-  .logo, .nav { grid-column: 1 / span 6; }
-  .nav { justify-content: flex-start; flex-wrap: wrap; }
-  .hero { min-height: auto; padding-block: 80px; }
-  h1 { font-size: clamp(3rem, 18vw, 5rem); }
-  .section { padding-block: 88px; }
-  .workGrid { grid-template-columns: 1fr; }
-  .caseBody { grid-template-columns: 1fr; }
-}
-`;
 
 export default App;
