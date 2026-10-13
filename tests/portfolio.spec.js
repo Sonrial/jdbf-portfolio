@@ -45,7 +45,7 @@ test('búsqueda tolera acentos, navegación por teclado y resultados vacíos', a
   const dialog = page.getByRole('dialog', { name: 'Buscar en el portfolio' });
   await expect(dialog).toBeVisible();
   const search = page.getByRole('combobox');
-  await search.fill('PVsyst');
+  await search.fill('PTAP La Flora');
   await expect(dialog.getByRole('option')).toHaveCount(1);
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'PV System Evaluation — PTAP La Flora' })).toBeVisible();
@@ -72,7 +72,7 @@ test('guarda el tema y descarga un contacto con datos reales', async ({ page }) 
   const file = await download.path();
   const contact = readFileSync(file, 'utf8');
   expect(contact).toContain('FN:Jose David Barrios Franco');
-  expect(contact).toContain('EMAIL:contacto@jdbf.dev');
+  expect(contact).toContain('EMAIL:josebarriosetc@gmail.com');
   expect(contact).toContain('Santander');
 });
 
@@ -85,7 +85,7 @@ test('valida el formulario y explica el envío mediante correo', async ({ page }
   await page.getByLabel('Cuéntame sobre tu proyecto').fill('Evaluación de un sistema solar FV.');
   await page.getByRole('button', { name: 'Preparar correo' }).click();
   await expect(page.locator('.contact-status')).toContainText('revisa el mensaje y envíalo allí');
-  await expect(page.locator('.email-row a')).toHaveAttribute('href', 'mailto:contacto@jdbf.dev');
+  await expect(page.locator('.email-row a')).toHaveAttribute('href', 'mailto:josebarriosetc@gmail.com');
   const draft = new URL(await page.getByRole('link', { name: 'Abrir aplicación de correo' }).getAttribute('href'));
   expect(draft.searchParams.get('subject')).toBe('Proyecto de María Pérez');
   expect(draft.searchParams.get('body')).toContain('Evaluación de un sistema solar FV.');

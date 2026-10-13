@@ -77,7 +77,7 @@ export const profile = {
   initials: "JDBF",
   role: "Ingeniero en Energía y Sostenibilidad",
   location: "Santander, Colombia",
-  email: "contacto@jdbf.dev",
+  email: "josebarriosetc@gmail.com",
   introduction: "Soy Jose David Barrios Franco, Ingeniero en Energía y Sostenibilidad. Integro simulación fotovoltaica, eficiencia energética, análisis de datos y automatización para estructurar soluciones técnicas verificables.",
   headline: "Ingeniería energética convertida en sistemas claros, datos confiables y decisiones técnicas.",
   about: [

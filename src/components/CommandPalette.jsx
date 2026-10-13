@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Search, ArrowUpRight, X, CornerDownLeft, Folder, Hash } from 'lucide-react';
-import { projects } from '../data/portfolio';
+import { projects, projectGroups, expertise } from '../data/portfolio';
 
-const sections = [{ id: 'about', title: 'Sobre mí' }, { id: 'stack', title: 'Mi caja de herramientas' }, { id: 'work', title: 'Proyectos seleccionados' }, { id: 'cases', title: 'Casos técnicos' }, { id: 'contact', title: 'Contacto' }];
+const sections = [{ id: 'about', title: 'Sobre mí' }, { id: 'stack', title: 'Mi caja de herramientas', keywords: expertise.flatMap(item => [item.title, ...item.tools]).join(' ') }, { id: 'work', title: 'Proyectos seleccionados' }, { id: 'cases', title: 'Casos técnicos' }, { id: 'contact', title: 'Contacto' }];
 
 export default function CommandPalette({ open, onClose, onProject }) {
   const dialog = useRef(null);
@@ -10,13 +10,17 @@ export default function CommandPalette({ open, onClose, onProject }) {
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  const options = [...sections.map(section => ({ ...section, type: 'section' })), ...projects.map(project => ({ ...project, type: 'project' }))].filter(item => normalize(`${item.title} ${item.category || ''} ${item.description || ''}`).includes(normalize(query)));
+  const terms = normalize(query).trim().split(/\s+/).filter(Boolean);
+  const options = [...sections.map(section => ({ ...section, type: 'section' })), ...projects.map(project => ({ ...project, type: 'project', keywords: `${projectGroups[project.number]} ${project.number}` }))].filter(item => {
+    const content = normalize(`${item.title} ${item.category || ''} ${item.description || ''} ${item.keywords || ''}`);
+    return terms.every(term => content.includes(term));
+  });
 
   useEffect(() => {
     if (open && !dialog.current.open) { dialog.current.showModal(); input.current.focus(); }
     else if (!open && dialog.current.open) dialog.current.close();
   }, [open]);
-  useEffect(() => { dialog.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' }); }, [active]);
+  useEffect(() => { dialog.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' }); }, [active, query]);
 
   const choose = useCallback((item) => {
     dialog.current.close();

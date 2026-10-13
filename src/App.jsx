@@ -3,6 +3,9 @@ import { ArrowUpRight, ArrowRight, ArrowUp, Sun, Moon, Search, MapPin, Mail, Cop
 import { profile, projects, cases, projectGroups, expertise } from './data/portfolio';
 import CommandPalette from './components/CommandPalette';
 import ProjectVisual from './components/ProjectVisual';
+import ContactForm from './components/ContactForm';
+import SceneBoundary, { Illustration } from './components/SceneBoundary';
+import useTheme from './hooks/useTheme';
 import './App.css';
 
 const EnergyScene = lazy(() => import('./components/EnergyScene'));
@@ -14,23 +17,14 @@ function SectionTitle({ index, title, count, caption }) {
 }
 
 function App() {
-  const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem('jdbf-theme') || 'light'; } catch { return 'light'; }
-  });
+  const [theme, toggleTheme] = useTheme();
   const [commandOpen, setCommandOpen] = useState(false);
   const [filter, setFilter] = useState('Todos');
   const [selectedProject, setSelectedProject] = useState(null);
   const [activeSection, setActiveSection] = useState('');
   const [copyStatus, setCopyStatus] = useState('');
-  const [contactStatus, setContactStatus] = useState('');
-  const [contactDraft, setContactDraft] = useState('');
   const projectDialog = useRef(null);
   const copyTimer = useRef(null);
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    try { localStorage.setItem('jdbf-theme', theme); } catch { /* Theme works without storage. */ }
-  }, [theme]);
 
   useEffect(() => {
     const onKey = (event) => {
@@ -70,15 +64,6 @@ function App() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  function sendContact(event) {
-    event.preventDefault();
-    const fields = new FormData(event.currentTarget);
-    const subject = `Proyecto de ${fields.get('name')}`;
-    const body = `Hola Jose David,\n\n${fields.get('project')}\n\n${fields.get('name')}\n${fields.get('email')}`;
-    setContactDraft(`mailto:${profile.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
-    setContactStatus('Mensaje preparado. Abre tu aplicación de correo, revisa el mensaje y envíalo allí.');
-  }
-
   const visibleProjects = projects.filter(project => filter === 'Todos' || projectGroups[project.number] === filter);
   const selectedCase = selectedProject && cases.find(item => item.number === selectedProject.number);
 
@@ -88,7 +73,7 @@ function App() {
       <div className="header-inner">
         <a className="wordmark" href="#top" aria-label="JDBF — Inicio">jd<span className="wordmark-b">b</span>f<span className="wordmark-dot">.</span></a>
         <nav aria-label="Navegación principal">{navigation.map(([id, label]) => <a key={id} className={activeSection === id ? 'active' : ''} href={`#${id}`} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}</nav>
-        <div className="header-actions"><button className="search-button" onClick={() => setCommandOpen(true)} aria-label="Buscar en el portfolio"><Search size={15} /><span>Buscar</span><kbd>⌘ K</kbd></button><button className="icon-button theme-button" aria-label={theme === 'light' ? 'Activar tema oscuro' : 'Activar tema claro'} onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>{theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}</button></div>
+        <div className="header-actions"><button className="search-button" onClick={() => setCommandOpen(true)} aria-label="Buscar en el portfolio"><Search size={15} /><span>Buscar</span><kbd>⌘ K</kbd></button><button className="icon-button theme-button" aria-label={theme === 'light' ? 'Activar tema oscuro' : 'Activar tema claro'} onClick={toggleTheme}>{theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}</button></div>
       </div>
     </header>
 
@@ -102,7 +87,7 @@ function App() {
           <p className="hero-tagline">Energía. Datos. <span>Sistemas.</span></p>
           <div className="hero-links"><a className="button button-primary" href="#work">Explorar proyectos <ArrowUpRight size={16} /></a><a className="text-link" href="#contact">Hablemos <ArrowRight size={15} /></a></div>
         </div>
-        <figure className="hero-art"><div className="figure-top"><span className="mono">FIG. 01</span><span className="scene-label"><span />SISTEMA EN MOVIMIENTO</span></div><Suspense fallback={<div className="scene-fallback" aria-hidden="true"><Zap size={70} strokeWidth={0.8} /></div>}><EnergyScene theme={theme} /></Suspense><figcaption><span>Transformar energía en posibilidades.</span><span className="mono">↗ JDBF</span></figcaption></figure>
+        <figure className="hero-art"><div className="figure-top"><span className="mono">FIG. 01</span><span className="scene-label"><span />SISTEMA EN MOVIMIENTO</span></div><SceneBoundary><Suspense fallback={<Illustration />}><EnergyScene theme={theme} /></Suspense></SceneBoundary><figcaption><span>Transformar energía en posibilidades.</span><span className="mono">↗ JDBF</span></figcaption></figure>
       </section>
 
       <div className="profile-strip"><div><MapPin size={15} /><span>{profile.location}</span></div><div><Zap size={15} /><span>Energy & Sustainability</span></div><button onClick={downloadContact}><Download size={15} /><span>Guardar contacto</span><ArrowUpRight size={13} /></button></div>
@@ -137,7 +122,7 @@ function App() {
       <div className="stripe-divider" aria-hidden="true" />
       <section id="contact" className="section contact-section reveal" aria-labelledby="contact-title">
         <SectionTitle index="05" title={<span id="contact-title">Construyamos algo útil.</span>} caption="LA SIGUIENTE CONVERSACIÓN" />
-        <div className="contact-grid"><div className="contact-copy"><span className="availability"><span className="status-dot" />Abierto a colaborar</span><h3>¿Un sistema que<br />necesita orden?</h3><p>Disponible para proyectos de energía, sistemas fotovoltaicos, eficiencia energética, automatización técnica y análisis de datos.</p><div className="email-row"><a href={`mailto:${profile.email}`}><Mail size={17} />{profile.email}</a><button className="icon-button" aria-label="Copiar correo electrónico" onClick={copyEmail}>{copyStatus === 'Correo copiado' ? <Check size={15} /> : <Copy size={15} />}</button></div><p role="status" className="copy-status">{copyStatus}</p><div className="contact-location"><MapPin size={14} />Santander, Colombia <span>UTC−5</span></div></div><form className="contact-form" onSubmit={sendContact}><div className="form-row"><label>Tu nombre<input required name="name" autoComplete="name" placeholder="¿Cómo te llamas?" maxLength={120} /></label><label>Tu correo<input required type="email" name="email" autoComplete="email" placeholder="tu@correo.com" maxLength={254} /></label></div><label>Cuéntame sobre tu proyecto<textarea required name="project" rows={4} placeholder="El problema, la idea o el sistema que quieres mejorar…" maxLength={3000} /></label><button className="button button-primary" type="submit">Preparar correo <ArrowUpRight size={16} /></button><p className="form-note">El mensaje se envía desde tu aplicación de correo.</p>{contactDraft && <a className="text-link contact-draft" href={contactDraft} target="_blank" rel="noreferrer">Abrir aplicación de correo <ArrowUpRight size={15} /></a>}<p className="contact-status" role="status">{contactStatus}</p></form></div>
+        <div className="contact-grid"><div className="contact-copy"><span className="availability"><span className="status-dot" />Abierto a colaborar</span><h3>¿Un sistema que<br />necesita orden?</h3><p>Disponible para proyectos de energía, sistemas fotovoltaicos, eficiencia energética, automatización técnica y análisis de datos.</p><div className="email-row"><a href={`mailto:${profile.email}`}><Mail size={17} />{profile.email}</a><button className="icon-button" aria-label="Copiar correo electrónico" onClick={copyEmail}>{copyStatus === 'Correo copiado' ? <Check size={15} /> : <Copy size={15} />}</button></div><p role="status" className="copy-status">{copyStatus}</p><div className="contact-location"><MapPin size={14} />Santander, Colombia <span>UTC−5</span></div></div><ContactForm /></div>
       </section>
       <footer className="footer"><a className="wordmark" href="#top" aria-label="Volver al inicio">jdbf<span className="wordmark-dot">.</span></a><p>© {new Date().getFullYear()} Jose David Barrios Franco<br /><span>Hecho con criterio. Pensado para ser útil.</span></p><a href="https://github.com/Sonrial/jdbf-portfolio" target="_blank" rel="noreferrer" className="footer-source"><Code2 size={15} />Código fuente <ArrowUpRight size={13} /></a><a href="#top" className="back-top" aria-label="Volver arriba"><ArrowUp size={17} /></a></footer>
     </main>

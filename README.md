@@ -29,15 +29,15 @@ Las pruebas utilizan Chromium del sistema cuando existe en `/usr/bin/chromium`. 
 - `src/components/ProjectVisual.jsx`: ilustraciones SVG conceptuales de los seis ámbitos de trabajo. Los gráficos son ilustraciones, no métricas medidas ni capturas de resultados reales.
 - `src/index.css` y `src/App.css`: temas claro/oscuro, tipografía local, vista móvil y animaciones que respetan movimiento reducido.
 
-Los diálogos usan el comportamiento nativo del navegador para gestionar foco, Escape y navegación por teclado. El tema se conserva en almacenamiento local. No se inventan estudios, fechas de empleo, clientes, resultados cuantificados ni enlaces de proyectos que no estaban en la fuente.
+Los diálogos usan el comportamiento nativo del navegador para gestionar foco, Escape y navegación por teclado. El tema sigue al dispositivo hasta que se selecciona una preferencia manual, que se conserva en almacenamiento local. Si la descarga del módulo 3D falla, una ilustración estática mantiene el resto del portfolio disponible. No se inventan estudios, fechas de empleo, clientes, resultados cuantificados ni enlaces de proyectos que no estaban en la fuente.
 
 ## Contacto
 
-Se conserva `contacto@jdbf.dev` del portfolio original. El formulario valida los campos y prepara un enlace `mailto:` con el nombre, el correo y el mensaje. Al pulsar «Abrir aplicación de correo» se abre el borrador. **La persona envía el mensaje desde su aplicación de correo**; el sitio no dispone de un servidor de envío. La descarga de contacto produce un archivo `.vcf`, no un currículum.
+El correo de contacto es `josebarriosetc@gmail.com`. El formulario valida los campos y prepara un enlace `mailto:` con el nombre, el correo y el mensaje. Al pulsar «Abrir aplicación de correo» se abre el borrador. **La persona envía el mensaje desde su aplicación de correo**; el sitio no dispone de un servidor de envío. La descarga de contacto produce un archivo `.vcf`, no un currículum.
 
 ## Verificación
 
-Playwright verifica en escritorio y móvil la conservación del contenido original, filtros, fichas, foco, búsqueda, persistencia de tema, vCard, validación del formulario, ausencia de desbordamiento a 320/390/768/1440 px y alternativa sin WebGL. Axe revisa reglas WCAG A/AA en los dos temas y en el buscador. Las pruebas de animación cuentan llamadas reales de dibujo de WebGL y comprueban pausa sin reconstrucción del canvas, reanudación, suspensión fuera de pantalla, movimiento reducido y recuperación después de perder el contexto gráfico. También se comprueban superposiciones de la cabecera móvil, foco del diálogo y su contraste. La referencia original para los textos está en `tests/fixtures/original-content.json`.
+Playwright verifica en escritorio y móvil la conservación del contenido original, filtros, fichas, foco, búsqueda, tema del dispositivo y preferencia manual, vCard, validación del formulario y actualización del borrador, ausencia de desbordamiento a 320/390/768/1440 px y alternativa sin WebGL. Axe revisa reglas WCAG A/AA en los dos temas y en el buscador. Las pruebas de animación cuentan llamadas reales de dibujo de WebGL y comprueban pausa sin reconstrucción del canvas, reanudación, suspensión fuera de pantalla, movimiento reducido y recuperación después de perder el contexto gráfico. También se comprueban superposiciones de la cabecera móvil, foco del diálogo y su contraste. Diez pruebas adicionales comprueban el correo actualizado, el portapapeles, metadatos, borradores sin datos obsoletos, búsqueda por varias palabras y recuperación ante una descarga 3D fallida. Consulta [el informe de verificación](docs/verification.md). La referencia original para los textos está en `tests/fixtures/original-content.json`.
 
 ## Publicación
 
