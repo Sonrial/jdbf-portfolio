@@ -301,3 +301,12 @@ dialog[open] { animation: rise-in .2s ease both; }
 .email-row a svg { margin-top: 2px; }
 .email-row .icon-button { flex-shrink: 0; }
 .scene-fallback svg { width: 100%; height: 100%; max-height: 285px; padding: 15px; }
+/* Preserve the close control while reading a long project. */
+.dialog-actions { position: sticky; top: 0; height: 0; z-index: 2; }
+.scene-toggle::after, .email-row .icon-button::after, .dialog-close::after { content: ''; position: absolute; inset: -5px; }
+.email-row .icon-button { position: relative; }
+.command-option { width: 100%; text-align: left; }
+.command-dialog, .project-dialog { overscroll-behavior: contain; }
+.field-error { display: block; margin-top: 7px; color: var(--ink); font-size: 10px; line-height: 1.6; }
+.contact-form [aria-invalid='true'] { border-color: var(--ink); }
+.contact-form input, .contact-form textarea { scroll-margin-block: 85px 20px; }

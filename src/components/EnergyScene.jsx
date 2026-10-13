@@ -7,10 +7,15 @@ export default function EnergyScene({ theme }) {
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
   const controls = useRef(null);
+  const themeRef = useRef(theme);
   useEffect(() => {
     pausedRef.current = paused;
-    controls.current?.();
+    controls.current?.resume();
   }, [paused]);
+  useEffect(() => {
+    themeRef.current = theme;
+    controls.current?.setTheme(theme);
+  }, [theme]);
   useEffect(() => {
     const element = host.current;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -30,7 +35,7 @@ export default function EnergyScene({ theme }) {
     const light = new THREE.DirectionalLight(0xffffff, 4); light.position.set(-3, 7, 4); scene.add(light);
     const warm = new THREE.DirectionalLight(0xbccc8d, 2); warm.position.set(4, 2, -5); scene.add(warm);
     const system = new THREE.Group(); scene.add(system);
-    const dark = theme === 'dark';
+    const dark = themeRef.current === 'dark';
     const slabMaterial = new THREE.MeshStandardMaterial({ color: dark ? 0x475047 : 0xd4d8cf, roughness: 0.55, metalness: 0.35 });
     const frameMaterial = new THREE.MeshStandardMaterial({ color: dark ? 0x8b9488 : 0x727c70, roughness: 0.4, metalness: 0.65 });
     const cellMaterial = new THREE.MeshStandardMaterial({ color: 0x263d33, roughness: 0.25, metalness: 0.6 });
@@ -40,19 +45,26 @@ export default function EnergyScene({ theme }) {
     const mid = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.14, 2.6), frameMaterial); mid.position.y = -0.28; system.add(mid);
     const board = new THREE.Group(); board.position.y = 0.56; system.add(board);
     const panel = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.12, 2.6), frameMaterial); board.add(panel);
+    const cells = new THREE.InstancedMesh(new THREE.BoxGeometry(0.76, 0.025, 0.76), cellMaterial, 12);
+    const placement = new THREE.Matrix4();
+    const stripes = [];
     for (let row = 0; row < 3; row++) {
       for (let column = 0; column < 4; column++) {
-        const cell = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.025, 0.76), cellMaterial);
-        cell.position.set((column - 1.5) * 0.8, 0.077, (row - 1) * 0.8); board.add(cell);
+        const x = (column - 1.5) * 0.8, z = (row - 1) * 0.8;
+        cells.setMatrixAt(row * 4 + column, placement.makeTranslation(x, 0.077, z));
         for (let divider = -1; divider <= 1; divider++) {
-          const stripe = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-0.34, 0.015, divider * 0.18), new THREE.Vector3(0.34, 0.015, divider * 0.18)]), lineMaterial);
-          cell.add(stripe);
+          stripes.push(new THREE.Vector3(x - 0.34, 0.092, z + divider * 0.18), new THREE.Vector3(x + 0.34, 0.092, z + divider * 0.18));
         }
       }
     }
+    cells.instanceMatrix.needsUpdate = true;
+    board.add(cells, new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(stripes), lineMaterial));
+    const supports = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.025, 0.025, 1.6, 8), frameMaterial, 4);
+    let supportIndex = 0;
     for (const x of [-1.45, 1.45]) for (const z of [-1.05, 1.05]) {
-      const support = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.6, 8), frameMaterial); support.position.set(x, -0.2, z); system.add(support);
+      supports.setMatrixAt(supportIndex++, placement.makeTranslation(x, -0.2, z));
     }
+    supports.instanceMatrix.needsUpdate = true; system.add(supports);
     const orbit = new THREE.Group(); system.add(orbit); orbit.rotation.set(0.35, 0, 0.22);
     const ring = new THREE.Mesh(new THREE.TorusGeometry(2.55, 0.012, 6, 160), accentMaterial); ring.rotation.x = Math.PI / 2; orbit.add(ring);
     const node = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 12), accentMaterial); orbit.add(node);
@@ -65,8 +77,9 @@ export default function EnergyScene({ theme }) {
       if (disposed || !visible || document.hidden || pausedRef.current || reduced.matches || !contextAvailable) return;
       if (time - lastFrame > 32) {
         const delta = Math.min((time - lastFrame) / 1000, 0.06); lastFrame = time; elapsed += delta;
-        system.rotation.y += (target.x * 0.22 - system.rotation.y) * 0.07;
-        system.rotation.x += (target.y * 0.08 - system.rotation.x) * 0.07;
+        const blend = 1 - Math.exp(-2.2 * delta);
+        system.rotation.y += (target.x * 0.22 - system.rotation.y) * blend;
+        system.rotation.x += (target.y * 0.08 - system.rotation.x) * blend;
         board.position.y = 0.56 + Math.sin(elapsed * 0.8) * 0.045;
         node.position.set(Math.cos(elapsed * 0.45) * 2.55, 0, Math.sin(elapsed * 0.45) * 2.55);
         secondNode.position.set(Math.cos(elapsed * 0.45 + Math.PI) * 2.55, 0, Math.sin(elapsed * 0.45 + Math.PI) * 2.55);
@@ -81,20 +94,29 @@ export default function EnergyScene({ theme }) {
     };
     const resize = () => {
       const width = element.clientWidth, height = element.clientHeight;
+      if (!width || !height) return;
       renderer.setSize(width, height);
       const aspect = width / height;
       camera.left = -3.2 * aspect; camera.right = 3.2 * aspect; camera.top = 3.2; camera.bottom = -3.2; camera.updateProjectionMatrix(); render();
     };
-    const move = event => { if (reduced.matches || pausedRef.current) return; const rect = element.getBoundingClientRect(); target.x = ((event.clientX - rect.left) / rect.width - 0.5) * 2; target.y = ((event.clientY - rect.top) / rect.height - 0.5) * 2; };
+    const move = event => { if (event.pointerType === 'touch' || reduced.matches || pausedRef.current) return; const rect = element.getBoundingClientRect(); target.x = ((event.clientX - rect.left) / rect.width - 0.5) * 2; target.y = ((event.clientY - rect.top) / rect.height - 0.5) * 2; };
     const leave = () => { target.x = 0; target.y = 0; };
     const contextLost = event => { event.preventDefault(); contextAvailable = false; cancelAnimationFrame(frame); element.dataset.ready = 'false'; };
     const contextRestored = () => { contextAvailable = true; element.dataset.ready = 'true'; resize(); resume(); };
     const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(element);
     const observer = new IntersectionObserver(entries => { visible = entries[0].isIntersecting; resume(); }); observer.observe(element);
     document.addEventListener('visibilitychange', resume); reduced.addEventListener('change', resume);
-    element.addEventListener('pointermove', move); element.addEventListener('pointerleave', leave);
+    element.addEventListener('pointermove', move, { passive: true }); element.addEventListener('pointerleave', leave);
     renderer.domElement.addEventListener('webglcontextlost', contextLost); renderer.domElement.addEventListener('webglcontextrestored', contextRestored);
-    node.position.set(2.55, 0, 0); secondNode.position.set(-2.55, 0, 0); resize(); resume(); controls.current = resume;
+    const setTheme = nextTheme => {
+      const isDark = nextTheme === 'dark';
+      slabMaterial.color.setHex(isDark ? 0x475047 : 0xd4d8cf);
+      frameMaterial.color.setHex(isDark ? 0x8b9488 : 0x727c70);
+      lineMaterial.color.setHex(isDark ? 0xabb49f : 0x7f8b73);
+      render();
+    };
+    node.position.set(2.55, 0, 0); secondNode.position.set(-2.55, 0, 0); resize(); resume();
+    controls.current = { resume, setTheme };
     return () => {
       disposed = true; controls.current = null; cancelAnimationFrame(frame); resizeObserver.disconnect(); observer.disconnect();
       document.removeEventListener('visibilitychange', resume); reduced.removeEventListener('change', resume);
@@ -104,9 +126,9 @@ export default function EnergyScene({ theme }) {
       geometries.forEach(geometry => geometry.dispose()); materials.forEach(material => material.dispose());
       renderer.domElement.removeEventListener('webglcontextlost', contextLost);
       renderer.domElement.removeEventListener('webglcontextrestored', contextRestored);
-      renderer.dispose(); renderer.domElement.remove(); delete element.dataset.ready;
+      renderer.dispose(); renderer.forceContextLoss(); renderer.domElement.remove(); delete element.dataset.ready;
     };
-  }, [theme]);
+  }, []);
 
-  return <div className="energy-scene-wrap"><div className="energy-scene" ref={host} role="img" aria-label="Ilustración tridimensional de un panel solar en capas, rodeado por una órbita de energía"><svg className="scene-static" viewBox="0 0 400 300" aria-hidden="true"><g fill="none" stroke="currentColor" strokeWidth="1"><ellipse cx="200" cy="155" rx="160" ry="80" transform="rotate(-20 200 155)" /><path d="m75 160 125-65 125 65-125 65zM75 135l125-65 125 65-125 65z" /><path fill="currentColor" fillOpacity=".12" d="m75 105 125-65 125 65-125 65z" /><path d="m116 84 125 65m-83-86 125 65m-166 0 125-65m-83 86 125-65" /></g></svg></div><button className="scene-toggle icon-button" aria-label={paused ? 'Reanudar animación 3D' : 'Pausar animación 3D'} aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? <Play size={12} /> : <Pause size={12} />}</button></div>;
+  return <div className="energy-scene-wrap"><div className="energy-scene" ref={host} role="img" aria-label="Ilustración tridimensional de un panel solar en capas, rodeado por una órbita de energía"><svg className="scene-static" viewBox="0 0 400 300" aria-hidden="true"><g fill="none" stroke="currentColor" strokeWidth="1"><ellipse cx="200" cy="155" rx="160" ry="80" transform="rotate(-20 200 155)" /><path d="m75 160 125-65 125 65-125 65zM75 135l125-65 125 65-125 65z" /><path fill="currentColor" fillOpacity=".12" d="m75 105 125-65 125 65-125 65z" /><path d="m116 84 125 65m-83-86 125 65m-166 0 125-65m-83 86 125-65" /></g></svg></div><button className="scene-toggle icon-button" aria-label={paused ? 'Reanudar animación 3D' : 'Pausar animación 3D'} aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? <Play aria-hidden="true" size={12} /> : <Pause aria-hidden="true" size={12} />}</button></div>;
 }
