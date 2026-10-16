@@ -21,7 +21,7 @@ export default function ContactForm() {
       }
     }
     const subject = `Proyecto de ${name}`;
-    const body = `Hola Jose David,\n\n${project}\n\n${name}\n${email}`;
+    const body = `Hola José David,\n\n${project}\n\n${name}\n${email}`;
     setPrepared(`mailto:${profile.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
   }
 

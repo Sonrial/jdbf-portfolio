@@ -3,7 +3,9 @@ import { Search, ArrowUpRight, X, CornerDownLeft, Folder, Hash } from 'lucide-re
 import { isBackdropClick } from '../utils/dialog';
 import { projects, projectGroups, expertise } from '../data/portfolio';
 
-const sections = [{ id: 'about', title: 'Sobre mí' }, { id: 'stack', title: 'Mi caja de herramientas', keywords: expertise.flatMap(item => [item.title, ...item.tools]).join(' ') }, { id: 'work', title: 'Proyectos seleccionados' }, { id: 'cases', title: 'Casos técnicos' }, { id: 'contact', title: 'Contacto' }];
+import { experience, education, courses, additionalTraining } from '../data/career';
+
+const sections = [{ id: 'about', title: 'Sobre mí' }, { id: 'stack', title: 'Mi caja de herramientas', keywords: expertise.flatMap(item => [item.title, ...item.tools]).join(' ') }, { id: 'experience', title: 'Trayectoria', keywords: experience.flatMap(item => [item.role, item.organization, item.type]).join(' ') }, { id: 'education', title: 'Formación', keywords: [education.degree, education.institution, ...education.languages, 'INEL', ...courses, ...additionalTraining.map(item => item.description)].join(' ') }, { id: 'work', title: 'Proyectos seleccionados' }, { id: 'cases', title: 'Casos técnicos' }, { id: 'contact', title: 'Contacto' }];
 
 export default function CommandPalette({ open, onClose, onProject }) {
   const dialog = useRef(null);

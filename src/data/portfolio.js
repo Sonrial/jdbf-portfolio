@@ -73,15 +73,16 @@ export const cases = [
 ];
 
 export const profile = {
-  name: "Jose David Barrios Franco",
+  name: "José David Barrios Franco",
   initials: "JDBF",
-  role: "Ingeniero en Energía y Sostenibilidad",
-  location: "Santander, Colombia",
+  role: "Ingeniero en Energías y Sostenibilidad",
+  location: "Piedecuesta, Santander, Colombia",
+  linkedin: "https://www.linkedin.com/in/jos%C3%A9-david-barrios-franco-221159363",
   email: "josebarriosetc@gmail.com",
-  introduction: "Soy Jose David Barrios Franco, Ingeniero en Energía y Sostenibilidad. Integro simulación fotovoltaica, eficiencia energética, análisis de datos y automatización para estructurar soluciones técnicas verificables.",
+  introduction: "Soy José David Barrios Franco, Ingeniero en Energías y Sostenibilidad. Integro simulación fotovoltaica, eficiencia energética, regulación energética colombiana, análisis de datos y automatización para estructurar soluciones técnicas verificables.",
   headline: "Ingeniería energética convertida en sistemas claros, datos confiables y decisiones técnicas.",
   about: [
-    "Soy Ingeniero en Energía y Sostenibilidad con experiencia en eficiencia energética industrial, sistemas fotovoltaicos, regulación energética colombiana, análisis técnico y automatización de procesos.",
+    "En el Acueducto Metropolitano de Bucaramanga desarrollé modelos técnico-financieros y comparé alternativas fotovoltaicas con PVsyst. Mi experiencia también incluye validación de información contable y administrativa.",
     "Mi trabajo combina simulación energética, validación de datos, modelamiento técnico, redacción de informes y desarrollo de herramientas digitales para reducir errores, ordenar información y acelerar decisiones.",
     "No separo ingeniería y comunicación. Una solución técnica debe funcionar, poder verificarse y explicarse con claridad."
   ]
@@ -89,7 +90,7 @@ export const profile = {
 export const projectGroups = { "01": "Energía", "02": "Energía", "03": "Energía", "04": "Software", "05": "Software", "06": "Sostenibilidad" };
 export const expertise = [
   { number: "01", title: "Ingeniería energética", icon: "energy", description: "Del recurso energético a una solución verificable.", tools: ["PVsyst", "Eficiencia energética", "Sistemas híbridos", "Regulación colombiana"] },
-  { number: "02", title: "Datos y automatización", icon: "code", description: "Menos procesos manuales. Más información confiable.", tools: ["Python", "Pandas", "Apps Script", "Excel avanzado"] },
-  { number: "03", title: "Modelamiento y análisis", icon: "model", description: "Escenarios técnicos, económicos y ambientales.", tools: ["MILP", "SimaPro", "LCA / EPD", "Análisis financiero"] },
-  { number: "04", title: "Desarrollo y visualización", icon: "visual", description: "Sistemas que también se explican con claridad.", tools: ["React", "Remotion", "Motion Graphics", "Documentación técnica"] }
+  { number: "02", title: "Datos y automatización", icon: "code", description: "Menos procesos manuales. Más información confiable.", tools: ["Python", "Pandas", "Apps Script", "Excel avanzado", "Power Query", "Power BI"] },
+  { number: "03", title: "Modelamiento y análisis", icon: "model", description: "Escenarios técnicos, económicos y ambientales.", tools: ["MILP", "SimaPro", "LCA / EPD", "Análisis financiero", "MATLAB", "EES"] },
+  { number: "04", title: "Desarrollo y visualización", icon: "visual", description: "Sistemas que también se explican con claridad.", tools: ["React", "TypeScript", "Remotion", "Blender", "Documentación técnica"] }
 ];

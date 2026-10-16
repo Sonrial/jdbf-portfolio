@@ -20,7 +20,7 @@ test('preserva todos los proyectos y casos del portfolio original', async ({ pag
     for (const key of ['problem', 'solution', 'result', 'stack']) await expect(detail).toContainText(item[key]);
   }
   await expect(page.locator('#about')).toContainText('regulación energética colombiana');
-  await expect(page.locator('h1')).toContainText('Jose David');
+  await expect(page.locator('h1')).toContainText('José David');
   await expect(page.locator('h1')).toContainText('Barrios Franco');
 });
 
@@ -71,9 +71,10 @@ test('guarda el tema y descarga un contacto con datos reales', async ({ page }) 
   expect(download.suggestedFilename()).toBe('Jose-David-Barrios-Franco.vcf');
   const file = await download.path();
   const contact = readFileSync(file, 'utf8');
-  expect(contact).toContain('FN:Jose David Barrios Franco');
+  expect(contact).toContain('FN:José David Barrios Franco');
   expect(contact).toContain('EMAIL:josebarriosetc@gmail.com');
-  expect(contact).toContain('Santander');
+  expect(contact).toContain('ADR:;;;Piedecuesta;Santander;;Colombia');
+  expect(contact).toContain('URL:https://www.linkedin.com/in/');
 });
 
 test('valida el formulario y explica el envío mediante correo', async ({ page }) => {
@@ -93,7 +94,7 @@ test('valida el formulario y explica el envío mediante correo', async ({ page }
 });
 
 test('es accesible en ambos temas y en la búsqueda', async ({ page }) => {
-  for (const section of ['#about', '#stack', '#work', '#cases', '#contact']) await page.locator(section).scrollIntoViewIfNeeded();
+  for (const section of ['#about', '#experience', '#stack', '#work', '#cases', '#education', '#contact']) await page.locator(section).scrollIntoViewIfNeeded();
   for (const theme of ['light', 'dark']) {
     if (theme === 'dark') await page.getByRole('button', { name: 'Activar tema oscuro' }).click();
     const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();

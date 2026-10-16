@@ -72,7 +72,7 @@ test('busca varias palabras en cualquier orden, por especialidad y herramientas'
   await expect(page.getByRole('option')).toHaveCount(1);
   await expect(page.getByRole('option')).toContainText('PTAP La Flora');
   await input.fill('energia');
-  await expect(page.getByRole('option')).toHaveCount(3);
+  await expect(page.getByRole('option')).toHaveCount(5);
   await input.fill('python automatizacion');
   await expect(page.getByRole('option')).toHaveCount(1);
   await expect(page.getByRole('option')).toContainText('Mi caja de herramientas');
